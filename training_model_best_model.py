@@ -13,7 +13,6 @@ import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.datasets import make_moons, make_circles, make_classification
 from sklearn.neural_network import MLPClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.svm import SVC
@@ -49,15 +48,11 @@ classifiers = [
 #data = pd.DataFrame(LoadFile("ml5/train.csv"))  c:/Python/train.csv
 data = pd.DataFrame(LoadFile("ml5/train.csv"))
 # Нормализация данных
-data_n = data[['age', 'height', 'weight', 'ap_hi', 'ap_lo',
-               'cholesterol', 'gluc', 'bmi', 'ap_hi_n', 'ap_lo_n']]
-
-data_n = (data_n - data_n.mean()) / data_n.std()
-
-data[['age', 'height', 'weight', 'ap_hi', 'ap_lo', 'cholesterol', 'gluc', 'bmi', 'ap_hi_n', 'ap_lo_n']
-     ] = data_n[['age', 'height', 'weight', 'ap_hi', 'ap_lo', 'cholesterol', 'gluc', 'bmi', 'ap_hi_n', 'ap_lo_n']]
-
-data = data.fillna(0, axis=0)
+#data_n = (data_n - data_n.mean()) / data_n.std()
+data_n = pd.DataFrame(StandardScaler().fit_transform(data[['age', 'height', 'weight', 'ap_hi', 'ap_lo',
+               'cholesterol', 'gluc', 'bmi', 'ap_hi_n', 'ap_lo_n','weight_o','weight_nfg_o','weight_nfg_o_с','weight_o_c']]))
+data[['age', 'height', 'weight', 'ap_hi', 'ap_lo', 'cholesterol', 'gluc', 'bmi', 'ap_hi_n', 'ap_lo_n', 'weight_o', 'weight_nfg_o', 'weight_nfg_o_с', 'weight_o_c']
+     ] = data_n
 # age;gender;height;weight;ap_hi;ap_lo;cholesterol;gluc;smoke;alco;active;cardio
 # Предсказание курение алкоголь активность
 
@@ -77,7 +72,7 @@ for name, clf in zip(names, classifiers):
     score = clf.score(X_test, Y_test)
     err_train = np.mean(Y_train != clf.predict(X_train))
     err_test = np.mean(Y_test != clf.predict(X_test))
-    print(name,"err_train=", err_train, "err_train=",err_test, "score %s" % clf4.score(X_train, Y_train))
+    print(name,"err_train=", err_train, "err_test=",err_test, "score %s" % clf4.score(X_train, Y_train))
 print("stop faind")
 '''
 print("start gbt Y_smoke")

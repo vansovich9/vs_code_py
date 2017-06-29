@@ -4,32 +4,37 @@ import numpy as np
 def LoadFile(file_name ):
     data = pd.read_csv(file_name, header=0,
                     sep=';', na_values=['None'])
+    
 
+    data['ap_lo'] = data['ap_lo'].fillna(data['ap_lo'].mean())
+    data['ap_hi'] = data['ap_hi'].fillna(data['ap_hi'].mean())
+    
     data['ap_hi'] = abs(data['ap_hi'])
     data['ap_lo'] = abs(data['ap_lo'])
-    data['ap_lo'] = data['ap_lo'].fillna(0)
-    data['ap_hi'] = data['ap_hi'].fillna(0)
 
     data['age'] = round(data['age']/365, 2)
 
     data['gender'] = data['gender'] - 1
     
-    data.at[(data['ap_lo'] == 0),'ap_lo'] = data['ap_lo'].mean()
-    data.at[(data['ap_hi'] == 0),'ap_hi'] = data['ap_hi'].mean()
+    data.loc[(data['ap_lo'] == 0),'ap_lo'] = data['ap_lo'].mean()
+    data.loc[(data['ap_hi'] == 0),'ap_hi'] = data['ap_hi'].mean()
+
 
     while (data[data.ap_lo > 200]['id'].count()>0):
-        data.at[(data['ap_lo'] > 200),'ap_lo'] = data[data.ap_lo > 200]['ap_lo'] // 10
-
-    while (data[data.ap_hi > 250]['id'].count()>0):
-        data.at[(data['ap_hi'] > 250),'ap_hi'] = data[data.ap_lo > 250]['ap_hi'] // 10
-
-    while (data[data.ap_hi <= 20]['id'].count()>0):
-        data.at[(data['ap_hi'] < 50),'ap_hi'] = data[data.ap_lo < 50]['ap_hi'] * 10
+        data.loc[(data['ap_lo'] > 200),'ap_lo'] = data[data.ap_lo > 200]['ap_lo'] // 10
 
     while (data[data.ap_lo <= 20]['id'].count()>0):
-        data.at[(data['ap_lo'] <= 20),'ap_lo'] = data[data.ap_lo <= 20]['ap_lo'] * 10
+        data.loc[(data['ap_lo'] <= 20),'ap_lo'] = data[data.ap_lo <= 20]['ap_lo'] * 10
 
-    data.at[(data.ap_lo > data.ap_hi),['ap_hi','ap_lo']] = data[data.ap_lo > data.ap_hi][['ap_lo','ap_hi']]
+    while (data[data.ap_hi < 50]['id'].count()>0):
+        data.loc[(data['ap_hi'] < 50),'ap_hi'] = data[data.ap_hi < 50]['ap_hi'] * 10
+
+    while (data[data.ap_hi > 250]['id'].count()>0):
+        data.loc[(data['ap_hi'] > 250),'ap_hi'] = data[data.ap_hi > 250]['ap_hi'] // 10
+    
+    null_idx = data['ap_hi'] <= data['ap_lo']
+    
+    data.loc[null_idx,['ap_hi','ap_lo']] = data.loc[null_idx,['ap_lo','ap_hi']].values
 
     data_bmi = pd.DataFrame(
         {'bmi': round(((data['weight']) / ((data['height'] / 100)**2)), 2),
@@ -40,6 +45,12 @@ def LoadFile(file_name ):
     data_bmi['weight_nfg_o'] = data_bmi['weight_nfg_o'] * 1.1#отимальный вес формула Наглера завершение расчета
     data_bmi['weight_nfg_o_с'] = data['weight'] - data_bmi['weight_nfg_o']#отимальный вес формула Наглера отклонение
     data_bmi['weight_o_c'] = data['weight'] - data_bmi['weight_o']#отимальный вес отклонение
+
+    data_bmi['weight_o'] = data_bmi['weight_o'].fillna(0)
+    data_bmi['weight_nfg_o'] = data_bmi['weight_nfg_o'].fillna(0)
+    data_bmi['weight_nfg_o_с'] = data_bmi['weight_nfg_o_с'].fillna(0)
+    data_bmi['weight_o_c'] = data_bmi['weight_o_c'].fillna(0)
+
     #weight_o,weight_nfg_o,weight_nfg_o_с,weight_o_c
     #data_ap_hi_n = pd.DataFrame({'ap_hi_n': round(
     #    109 + (0.5 * round(data['age'] / 365, 2)) + (0.1 * data['weight']), 0)})
