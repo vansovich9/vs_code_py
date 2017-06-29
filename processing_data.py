@@ -32,8 +32,15 @@ def LoadFile(file_name ):
     data.at[(data.ap_lo > data.ap_hi),['ap_hi','ap_lo']] = data[data.ap_lo > data.ap_hi][['ap_lo','ap_hi']]
 
     data_bmi = pd.DataFrame(
-        {'bmi': round(((data['weight']) / ((data['height'] / 100)**2)), 2)})
-
+        {'bmi': round(((data['weight']) / ((data['height'] / 100)**2)), 2),
+        'weight_o': 50 +  round(0.75 *(data['height'] - 150), 2) + round((data['age'] - 20) / 4, 2),#отимальный вес
+        'weight_nfg_o': 45 +  round((data['height'] - 152.4) / 2.45 * 0.9, 2) + round(((data['age'] - 20) / 4), 2)#отимальный вес формула Наглера начало расчета
+        }
+        )
+    data_bmi['weight_nfg_o'] = data_bmi['weight_nfg_o'] * 1.1#отимальный вес формула Наглера завершение расчета
+    data_bmi['weight_nfg_o_с'] = data['weight'] - data_bmi['weight_nfg_o']#отимальный вес формула Наглера отклонение
+    data_bmi['weight_o_c'] = data['weight'] - data_bmi['weight_o']#отимальный вес отклонение
+    #weight_o,weight_nfg_o,weight_nfg_o_с,weight_o_c
     #data_ap_hi_n = pd.DataFrame({'ap_hi_n': round(
     #    109 + (0.5 * round(data['age'] / 365, 2)) + (0.1 * data['weight']), 0)})
     #data_ap_lo_n = pd.DataFrame({'ap_lo_n': round(
@@ -48,10 +55,13 @@ def LoadFile(file_name ):
     data['ap_hi_n'] = data['ap_hi_n'].fillna(0)
     data['ap_lo_n'] = data['ap_lo_n'].fillna(0)
 
-    data['ap_hi_n'] = np.sqrt((data['ap_hi'] - data['ap_hi_n'])**2)
-    data['ap_lo_n'] = np.sqrt((data['ap_lo'] - data['ap_lo_n'])**2)
-    data.at[(data['ap_hi_n'] >= 20 ), 'ap_hi_c'] = 1.0
-    data.at[(data['ap_lo_n'] >= 10 ), 'ap_lo_c'] = 1.0
+    #data['ap_hi_n'] = np.sqrt((data['ap_hi'] - data['ap_hi_n'])**2)
+    #data['ap_lo_n'] = np.sqrt((data['ap_lo'] - data['ap_lo_n'])**2)
+    data['ap_hi_n'] = data['ap_hi'] - data['ap_hi_n']
+    data['ap_lo_n'] = data['ap_lo'] - data['ap_lo_n']
+
+    data.at[(abs(data['ap_hi_n']) >= 20 ), 'ap_hi_c'] = 1.0
+    data.at[(abs(data['ap_lo_n']) >= 10 ), 'ap_lo_c'] = 1.0
 
     data['ap_hi_c'] = data['ap_hi_c'].fillna(0)
     data['ap_lo_c'] = data['ap_lo_c'].fillna(0)

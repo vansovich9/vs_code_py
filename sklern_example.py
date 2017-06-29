@@ -40,7 +40,7 @@ from sklearn.svm import SVC
 from sklearn.gaussian_process import GaussianProcessClassifier
 from sklearn.gaussian_process.kernels import RBF
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier,GradientBoostingClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.discriminant_analysis import QuadraticDiscriminantAnalysis
 
@@ -48,7 +48,7 @@ h = .02  # step size in the mesh
 
 names = ["Nearest Neighbors", "Linear SVM", "Sigmoid SVM", "Poly SVM","RBF SVM", "Gaussian Process",
          "Decision Tree", "Random Forest", "Neural Net", "AdaBoost",
-         "Naive Bayes", "QDA"]
+         "Naive Bayes", "QDA","GradientBoostingClassifier"]
 
 classifiers = [
     KNeighborsClassifier(3),
@@ -62,7 +62,9 @@ classifiers = [
     MLPClassifier(alpha=1),
     AdaBoostClassifier(),
     GaussianNB(),
-    QuadraticDiscriminantAnalysis()]
+    QuadraticDiscriminantAnalysis(),
+    GradientBoostingClassifier()
+    ]
 
 X, y = make_classification(n_features=2, n_redundant=0, n_informative=2,
                            random_state=1, n_clusters_per_class=1)
