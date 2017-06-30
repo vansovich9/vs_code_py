@@ -60,13 +60,66 @@ Y_alco = data["alco"]
 X_train, X_test, Y_train, Y_test = train_test_split(
     X, Y_smoke, test_size=0.3, random_state=11)
 print("start faind")
+'''
+RandomForestClassifier(n_estimators=10, criterion='gini', 
+max_depth=None, min_samples_split=2, min_samples_leaf=1, 
+min_weight_fraction_leaf=0.0, max_features='auto', 
+max_leaf_nodes=None, min_impurity_split=1e-07, 
+bootstrap=True, oob_score=False, n_jobs=1, 
+random_state=None, verbose=0, warm_start=False, class_weight=None)
+
+'''
+
+
  # iterate over classifiers
-for name, clf in zip(names, classifiers):
-    clf4 = clf.fit(X_train, Y_train)
-    score = clf.score(X_test, Y_test)
-    err_train = np.mean(Y_train != clf.predict(X_train))
-    err_test = np.mean(Y_test != clf.predict(X_test))
-    print(name,"err_train=", err_train, "err_test=",err_test, "score %s" % clf4.score(X_train, Y_train))
+from sklearn.grid_search import GridSearchCV
+n_estimators = [10,50,100,150,250,450,800]
+criterion = ['gini','entropy']
+max_features = ['auto', 'log2', None, 0.8]
+max_depth = [None, 100, 700, 7000, 10000]
+min_samples_split = [2, 10, 100, 0.01, 0.1, 0.3]
+min_samples_leaf = [1, 10, 30, 0.1, 0.01, 0.3]
+min_weight_fraction_leaf = [0.0, 0.01,0.1,0.2,0.3]
+max_leaf_nodes = [None,100,300,600,1000,1500]
+bootstrap = [True,False]
+oob_score = [True,False]
+
+#n_jobs = [-1] 'n_jobs' : n_jobs,
+#random_state = [11] 'random_state' : random_state,
+verbose = [0,10,20,30,40]
+warm_start = [True,False]
+
+rfc = RandomForestClassifier(n_jobs = -1, random_state = 11)
+grid = GridSearchCV(rfc, param_grid={
+    'n_estimators' : n_estimators,
+    'criterion' : criterion,
+    'max_features' : max_features,
+    'max_depth' : max_depth,
+    'min_samples_split' : min_samples_split,
+    'min_samples_leaf' : min_samples_leaf,
+    'min_weight_fraction_leaf' : min_weight_fraction_leaf,
+    'max_leaf_nodes' : max_leaf_nodes,
+    'bootstrap' : bootstrap,
+    'oob_score' : oob_score,
+    'verbose' : verbose,
+    'warm_start' : warm_start,
+})
+grid.fit(X_train, Y_train)
+
+best_cv_err = 1 - grid.best_score_
+best_n_neighbors = grid.best_estimator_.max
+print(best_cv_err, best_n_neighbors)
+print("best params")
+print(grid.best_params_)
+
+print("Grid scores on development set:")
+print()
+means = grid.cv_results_['mean_test_score']
+stds = grid.cv_results_['std_test_score']
+for mean, std, params in zip(means, stds, grid.cv_results_['params']):
+    print("%0.3f (+/-%0.03f) for %r" % (mean, std * 2, params))
+print()
+
 print("stop faind")
 '''
 Nearest Neighbors err_train= 0.0718163265306 err_test= 0.108761904762 score 0.928183673469
