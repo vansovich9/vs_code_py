@@ -34,7 +34,7 @@ gbt = ensemble.GradientBoostingClassifier(n_estimators=300, random_state=264, mi
 clf4 = gbt.fit(X_train, Y_train)
 err_train = np.mean(Y_train != gbt.predict(X_train))
 err_test = np.mean(Y_test != gbt.predict(X_test))
-joblib.dump(gbt, "training_models/gbt_cardio.pkl", compress=1)
+joblib.dump(gbt, "training_models/cardio.pkl", compress=1)
 
 print(err_train, err_test)
 print("Y_smoke gbt score %s" % clf4.score(X_train, Y_train))

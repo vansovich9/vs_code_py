@@ -38,7 +38,7 @@ gbt_smoke = RandomForestClassifier(
 clf4 = gbt_smoke.fit(X_train, Y_train)
 err_train = np.mean(Y_train != gbt_smoke.predict(X_train))
 err_test = np.mean(Y_test != gbt_smoke.predict(X_test))
-joblib.dump(gbt_smoke, "training_models/gbt_smoke.pkl", compress=1)
+joblib.dump(gbt_smoke, "training_models/smoke.pkl", compress=1)
 print(err_train, err_test)
 print("Y_smoke gbt score %s" % clf4.score(X_train, Y_train))
 
@@ -49,7 +49,7 @@ gbt_alko = RandomForestClassifier(
 clf4 = gbt_alko.fit(X_train, Y_train)
 err_train = np.mean(Y_train != gbt_alko.predict(X_train))
 err_test = np.mean(Y_test != gbt_alko.predict(X_test))
-joblib.dump(gbt_alko, "training_models/gbt_alko.pkl", compress=1)
+joblib.dump(gbt_alko, "training_models/alko.pkl", compress=1)
 print(err_train, err_test)
 print("Y_alco score %s" % clf4.score(X_train, Y_train))
 
