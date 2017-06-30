@@ -1,14 +1,9 @@
-'''import numpy as np
-import pandas as pd
-from sklearn import ensemble
-from sklearn.externals import joblib
-from sklearn.model_selection import train_test_split
-from sklearn.svm import SVC'''
-
 from processing_data import LoadFile
 
 import pandas as pd
 import numpy as np
+import datetime
+
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 from sklearn.model_selection import train_test_split
@@ -39,15 +34,15 @@ classifiers = [
     GradientBoostingClassifier()
     ]
 
-#data = pd.DataFrame(LoadFile("ml5/train.csv"))  c:/Python/train.csv
 data = pd.DataFrame(LoadFile("ml5/train.csv"))
+
+text_file = open("logs/best_cardio.log", "a+")
+text_file.write("Start date: %s \n" % datetime.datetime.now())
 # Нормализация данных
-#data_n = (data_n - data_n.mean()) / data_n.std()
 data_n = pd.DataFrame(StandardScaler().fit_transform(data[['age', 'height', 'weight', 'ap_hi', 'ap_lo',
                'cholesterol', 'gluc', 'bmi', 'ap_hi_n', 'ap_lo_n','weight_o','weight_nfg_o','weight_nfg_o_с','weight_o_c']]))
 data[['age', 'height', 'weight', 'ap_hi', 'ap_lo', 'cholesterol', 'gluc', 'bmi', 'ap_hi_n', 'ap_lo_n', 'weight_o', 'weight_nfg_o', 'weight_nfg_o_с', 'weight_o_c']
      ] = data_n
-# age;gender;height;weight;ap_hi;ap_lo;cholesterol;gluc;smoke;alco;active;cardio
 # Предсказание курение алкоголь активность
 
 X = data.drop(["cardio", "id", "smoke", "alco", "active","gluc_3" ,"bmi_n_4" ,"gluc_1" ,
@@ -66,8 +61,14 @@ for name, clf in zip(names, classifiers):
     score = clf.score(X_test, Y_test)
     err_train = np.mean(Y_train != clf.predict(X_train))
     err_test = np.mean(Y_test != clf.predict(X_test))
-    print(name,"err_train=", err_train, "err_test=",err_test, "score %s" % clf4.score(X_train, Y_train))
+    log_string = name + "err_train = " + err_train + " err_test = " + err_test + " score %s" % clf4.score(X_train, Y_train)
+    print(log_string)
+    text_file.write(log_string + "\n" )
+    
 print("stop faind")
+text_file.write("End date: %s \n" % datetime.datetime.now())
+text_file.close()
+
 '''
 Nearest Neighbors err_train= 0.0718163265306 err_test= 0.108761904762 score 0.928183673469
 Decision Tree err_train= 0.0798979591837 err_test= 0.0928571428571 score 0.920102040816

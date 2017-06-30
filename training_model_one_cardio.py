@@ -7,7 +7,6 @@ from sklearn.svm import SVC
 
 from processing_data import LoadFile
 
-#data = pd.DataFrame(LoadFile("ml5/train.csv"))  c:/Python/train.csv
 data = pd.DataFrame(LoadFile("ml5/train.csv"))
 # Нормализация данных
 '''
