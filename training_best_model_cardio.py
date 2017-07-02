@@ -57,7 +57,7 @@ for name, clf in zip(names, classifiers):
     score = clf.score(X_test, Y_test)
     err_train = np.mean(Y_train != clf.predict(X_train))
     err_test = np.mean(Y_test != clf.predict(X_test))
-    log_string = name + "err_train = " + err_train + " err_test = " + err_test + " score %s" % clf4.score(X_train, Y_train)
+    log_string = name + "err_train = " + str(err_train) + " err_test = " + str(err_test) + " score " + str(clf4.score(X_train, Y_train))
     print(log_string)
     text_file.write(log_string + "\n" )
 print("stop faind")

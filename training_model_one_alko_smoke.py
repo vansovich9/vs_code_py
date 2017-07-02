@@ -17,7 +17,7 @@ data_n = (data_n - data_n.mean()) / data_n.std()
 data[['age', 'height', 'weight', 'ap_hi', 'ap_lo', 'cholesterol', 'gluc', 'bmi', 'ap_hi_n', 'ap_lo_n']
      ] = data_n[['age', 'height', 'weight', 'ap_hi', 'ap_lo', 'cholesterol', 'gluc', 'bmi', 'ap_hi_n', 'ap_lo_n']]
 
-data = data.fillna(0, axis=0)
+#data = data.fillna(0, axis=0)
 # age;gender;height;weight;ap_hi;ap_lo;cholesterol;gluc;smoke;alco;active;cardio
 # Предсказание курение алкоголь
 

@@ -1,0 +1,11 @@
+Start date: 2017-06-30 22:04:40.254575 
+Start date: 2017-06-30 22:06:47.655562 
+Nearest Neighborserr_train = 0.179551020408 err_test = 0.320952380952 score 0.820448979592
+Decision Treeerr_train = 0.240632653061 err_test = 0.277238095238 score 0.759367346939
+Random Foresterr_train = 0.25287755102 err_test = 0.273333333333 score 0.74712244898
+Neural Neterr_train = 0.265387755102 err_test = 0.267619047619 score 0.734612244898
+AdaBoosterr_train = 0.265612244898 err_test = 0.269333333333 score 0.734387755102
+Naive Bayeserr_train = 0.300816326531 err_test = 0.307380952381 score 0.699183673469
+QDAerr_train = 0.470836734694 err_test = 0.470523809524 score 0.529163265306
+GradientBoostingClassifiererr_train = 0.258183673469 err_test = 0.265476190476 score 0.741816326531
+End date: 2017-06-30 22:08:18.564603 
