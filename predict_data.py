@@ -6,10 +6,10 @@ import pandas as pd
 
 data_p = LoadFile("ml5/test.csv")
 
-data_n = pd.DataFrame(StandardScaler().fit_transform(data_p[['age', 'height', 'weight', 'ap_hi', 'ap_lo',
+'''data_n = pd.DataFrame(StandardScaler().fit_transform(data_p[['age', 'height', 'weight', 'ap_hi', 'ap_lo',
                'cholesterol', 'gluc', 'bmi', 'ap_hi_n', 'ap_lo_n','weight_o','weight_nfg_o','weight_nfg_o_с','weight_o_c']]))
 data_p[['age', 'height', 'weight', 'ap_hi', 'ap_lo', 'cholesterol', 'gluc', 'bmi', 'ap_hi_n', 'ap_lo_n', 'weight_o', 'weight_nfg_o', 'weight_nfg_o_с', 'weight_o_c']
-     ] = data_n
+     ] = data_n'''
 
 clf_smoke = joblib.load('training_models/smoke.pkl')
 clf_alco = joblib.load('training_models/alko.pkl')
@@ -38,22 +38,21 @@ data_na.loc[(pd.isnull(data_na['alco'])),'alco'] = data_na.loc[(pd.isnull(data_n
 data_p['alco'] = data_na.loc[:,'alco']
 data_p['smoke'] = data_na.loc[:,'smoke'] 
 
-data_p = data_p.drop(['id','p_smoke','p_alko'], axis=1)  # Выбрасываем столбец 'class'.
+data_p['risk']=0
+data_p.loc[(data_p['smoke']==1),'risk']=data_p[(data_p.smoke==1)]['risk']+0.2
+data_p.loc[(data_p['alco']==1),'risk']=data_p[(data_p.alco==1)]['risk']+0.1
+data_p.loc[(data_p['bmi_r_1']==1),'risk']=data_p[(data_p.bmi_r_1==1)]['risk']+0.2
+data_p.loc[(data_p['bmi_r_3']==1),'risk']=data_p[(data_p.bmi_r_3==1)]['risk']+0.4
+data_p.loc[(data_p['bmi_r_4']==1),'risk']=data_p[(data_p.bmi_r_4==1)]['risk']+0.7
 
-X = data_p[:]  # Выбрасываем столбец 'class'.
+data_p = data_p.drop(['id','p_smoke','p_alko','weight_o','weight_nfg_o','weight_nfg_o_с','weight_o_c','alco','bmi_r_4','bmi_n_7','bmi_r_1','bmi_n_2','bmi_n_1'], axis=1)  # Выбрасываем столбец 'class'.
+
+#X = data_p[:]  # Выбрасываем столбец 'class'.
 
 # Предсказание курения
 print("start gbt Y_smoke")
 #abc = ensemble.AdaBoostClassifier(n_estimators=300, random_state=264)
 #gbt = ensemble.GradientBoostingClassifier(n_estimators=300, random_state=264)
-collection = [100, 200, 264, 300, 350, 400, 500,650, 700, 900, 450]
-for x in collection:
-    name = 'predict_MLP_' + str(x)
-    gbt = joblib.load("training_models/" + name + ".pkl")
-    data_p[name] = pd.DataFrame(gbt.predict_proba(X)).drop([0], axis=1)
-    name = 'predict_ABC_' + str(x)
-    gbt = joblib.load("training_models/" + name + ".pkl")
-    data_p[name] = pd.DataFrame(gbt.predict_proba(X)).drop([0], axis=1)
 
 data_p_s1 = pd.DataFrame(clf_cardio.predict_proba(data_p))
 data_p_s2 = pd.DataFrame(clf_cardio.predict_log_proba(data_p))

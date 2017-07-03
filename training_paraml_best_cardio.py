@@ -50,27 +50,26 @@ data[['age', 'height', 'weight', 'ap_hi', 'ap_lo', 'cholesterol', 'gluc', 'bmi',
 # age;gender;height;weight;ap_hi;ap_lo;cholesterol;gluc;smoke;alco;active;cardio
 # Предсказание курение алкоголь активность
 
-X = data.drop(['cardio','id'], axis=1)  # Выбрасываем столбец 'class'.
+#X = data.drop(['cardio','id'], axis=1)  # Выбрасываем столбец 'class'.
+X = data.drop(['cardio','id','weight_o','weight_nfg_o','weight_nfg_o_с','weight_o_c','alco','bmi_r_4','bmi_n_7','bmi_r_1','bmi_n_2','bmi_n_1'], axis=1)  # Выбрасываем столбец 'class'.
 Y = data['cardio']
 
 # Предсказание курения
 X_train, X_test, Y_train, Y_test = train_test_split(
-    X, Y_smoke, test_size=0.3, random_state=11)
+    X, Y, test_size=0.3, random_state=11)
 print("start faind")
 '''
-RandomForestClassifier(n_estimators=10, criterion='gini', 
-max_depth=None, min_samples_split=2, min_samples_leaf=1, 
-min_weight_fraction_leaf=0.0, max_features='auto', 
-max_leaf_nodes=None, min_impurity_split=1e-07, 
-bootstrap=True, oob_score=False, n_jobs=1, 
-random_state=None, verbose=0, warm_start=False, class_weight=None)
+class sklearn.ensemble.GradientBoostingClassifier(loss='deviance', learning_rate=0.1, n_estimators=100, subsample=1.0,
+ criterion='friedman_mse', min_samples_split=2, min_samples_leaf=1, min_weight_fraction_leaf=0.0, max_depth=3,
+  min_impurity_split=1e-07, init=None, max_features=None,
+  max_leaf_nodes=None)
 
 '''
 
 
  # iterate over classifiers
-from sklearn.grid_search import GridSearchCV
-n_estimators = [10,50,100,150,250,450,800]
+from sklearn.model_selection import GridSearchCV
+n_estimators = [10,50,100,150,250,300,450,800]
 criterion = ['gini','entropy']
 max_features = ['auto', 'log2', None, 0.8]
 max_depth = [None, 100, 700, 7000, 10000]
@@ -80,22 +79,14 @@ min_weight_fraction_leaf = [0.0, 0.01,0.1,0.2,0.3]
 max_leaf_nodes = [None,100,300,600,1000,1500]
 verbose = [0,10,20,30,40]
 
-abc = ensemble.AdaBoostClassifier(n_estimators=300, random_state=264,n_jobs = -1)
+abc = GradientBoostingClassifier(random_state=264)
 grid = GridSearchCV(abc, param_grid={
-    'n_estimators' : n_estimators,
-    'criterion' : criterion,
-    'max_features' : max_features,
-    'max_depth' : max_depth,
-    'min_samples_split' : min_samples_split,
-    'min_samples_leaf' : min_samples_leaf,
-    'min_weight_fraction_leaf' : min_weight_fraction_leaf,
-    'max_leaf_nodes' : max_leaf_nodes,
-    'verbose' : verbose
+    'n_estimators' : n_estimators
 })
 grid.fit(X_train, Y_train)
 
 best_cv_err = 1 - grid.best_score_
-best_n_neighbors = grid.best_estimator_.max
+best_n_neighbors = grid.best_estimator_.n_estimators
 print(best_cv_err, best_n_neighbors)
 print("best params")
 print(grid.best_params_)
