@@ -59,11 +59,6 @@ data.loc[(data['bmi_r_3']==1),'risk']=data[(data.bmi_r_3==1)]['risk']+0.4
 
 data.loc[(data['bmi_r_4']==1),'risk']=data[(data.bmi_r_4==1)]['risk']+0.7
 
-
-
-X = data.drop(['cardio','id','weight_o','weight_nfg_o','weight_nfg_o_с','weight_o_c','alco','bmi_r_4','bmi_n_7','bmi_r_1','bmi_n_2','bmi_n_1'], axis=1)  # Выбрасываем столбец 'class'.
-Y = data['cardio']
-
 #print(X.columns)
 
 # Предсказание курения
@@ -80,17 +75,38 @@ print("start gbt")
 start to nite
 ,criterion = 'mae'
 '''
+X = data[(data.gender==0)].drop(['cardio','id','gender','weight_o','weight_nfg_o','weight_nfg_o_с','weight_o_c','alco','bmi_r_4','bmi_n_7','bmi_r_1','bmi_n_2','bmi_n_1'], axis=1)  # Выбрасываем столбец 'class'.
+Y = data[(data.gender==0)]['cardio']
+
 X_train, X_test, Y_train, Y_test = train_test_split(
     X, Y, test_size=0.3, random_state=11)
-gbt = ensemble.GradientBoostingClassifier(n_estimators=300, random_state=264,min_samples_leaf = 5, subsample = 0.5)
+#gbt = ensemble.GradientBoostingClassifier(n_estimators=55, random_state=264,min_samples_leaf = 5, subsample = 0.5, verbose=0)
+gbt = MLPClassifier(alpha=0.0)
 clf4 = gbt.fit(X_train, Y_train)
 
 err_train = np.mean(Y_train != gbt.predict(X_train))
 err_test = np.mean(Y_test != gbt.predict(X_test))
 err_sum = np.mean(Y != gbt.predict(X))
-joblib.dump(gbt, "training_models/cardio_t.pkl", compress=1)
+joblib.dump(gbt, "training_models/cardio_0.pkl", compress=1)
 
-print(err_train, err_test, 'err_sum', err_sum)
+print("gender 0",err_train, err_test, 'err_sum', err_sum)
+print("gbt score %s" % clf4.score(X_train, Y_train))
+
+X = data[(data.gender==1)].drop(['cardio','id','gender','weight_o','weight_nfg_o','weight_nfg_o_с','weight_o_c','alco','bmi_r_4','bmi_n_7','bmi_r_1','bmi_n_2','bmi_n_1'], axis=1)  # Выбрасываем столбец 'class'.
+Y = data[(data.gender==1)]['cardio']
+
+X_train, X_test, Y_train, Y_test = train_test_split(
+    X, Y, test_size=0.3, random_state=11)
+#gbt = ensemble.GradientBoostingClassifier(n_estimators=40, random_state=264,min_samples_leaf = 6, subsample = 0.1, verbose=0)
+gbt = MLPClassifier(alpha=0.0)
+clf4 = gbt.fit(X_train, Y_train)
+
+err_train = np.mean(Y_train != gbt.predict(X_train))
+err_test = np.mean(Y_test != gbt.predict(X_test))
+err_sum = np.mean(Y != gbt.predict(X))
+joblib.dump(gbt, "training_models/cardio_1.pkl", compress=1)
+
+print("gender 1",err_train, err_test, 'err_sum', err_sum)
 print("gbt score %s" % clf4.score(X_train, Y_train))
 '''print()
 feature_names = X.columns

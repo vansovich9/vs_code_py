@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import StandardScaler, Normalizer
 
 def LoadFile(file_name ):
     data = pd.read_csv(file_name, header=0,
@@ -14,7 +14,7 @@ def LoadFile(file_name ):
     data['ap_hi'] = abs(data['ap_hi'])
     data['ap_lo'] = abs(data['ap_lo'])
 
-    data['age'] = round(data['age']/365, 2)
+    #data['age'] = round(data['age']/365, 2)
 
     data['gender'] = data['gender'] - 1
     
@@ -39,8 +39,8 @@ def LoadFile(file_name ):
 
     data_bmi = pd.DataFrame(
         {'bmi': round(((data['weight']) / ((data['height'] / 100)**2)), 2),
-        'weight_o': 50 +  round(0.75 *(data['height'] - 150), 2) + round((data['age'] - 20) / 4, 2),#отимальный вес
-        'weight_nfg_o': 45 +  round((data['height'] - 152.4) / 2.45 * 0.9, 2) + round(((data['age'] - 20) / 4), 2)#отимальный вес формула Наглера начало расчета
+        'weight_o': 50 +  round(0.75 *(data['height'] - 150), 2) + round((round(data['age']/365, 2) - 20) / 4, 2),#отимальный вес
+        'weight_nfg_o': 45 +  round((data['height'] - 152.4) / 2.45 * 0.9, 2) + round(((round(data['age']/365, 2) - 20) / 4), 2)#отимальный вес формула Наглера начало расчета
         }
         )
     data_bmi['weight_nfg_o'] = data_bmi['weight_nfg_o'] * 1.1#отимальный вес формула Наглера завершение расчета
@@ -58,9 +58,9 @@ def LoadFile(file_name ):
     #data_ap_lo_n = pd.DataFrame({'ap_lo_n': round(
         #64 + (0.1 * round(data['age'] / 365, 2)) + (0.15 * data['weight']), 0)})
     data_ap_hi_n = pd.DataFrame({'ap_hi_n': round(
-        109 + (0.5 * data['age']) + (0.1 * data['weight']), 0)})
+        109 + (0.5 * round(data['age']/365, 2)) + (0.1 * data['weight']), 0)})
     data_ap_lo_n = pd.DataFrame({'ap_lo_n': round(
-        64 + (0.1 * data['age']) + (0.15 * data['weight']), 0)})
+        64 + (0.1 * round(data['age']/365, 2)) + (0.15 * data['weight']), 0)})
 
     data = pd.concat((data, data_bmi, data_ap_hi_n, data_ap_lo_n), axis=1)
 
