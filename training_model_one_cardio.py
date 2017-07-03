@@ -74,10 +74,14 @@ print("start gbt")
 0.240673469388 0.267523809524 err_sum 0.248728571429(n_estimators=300, random_state=264,learning_rate = 0.3)
 0.254408163265 0.265238095238 err_sum 0.257657142857(n_estimators=300, random_state=264,learning_rate = 0.1)
 0.0591836734694 0.282428571429 err_sum 0.126157142857(n_estimators=300, random_state=264,max_depth = 10)
+0.253979591837 0.26480952381 err_sum 0.257228571429(n_estimators=300, random_state=264,min_samples_leaf = 3)
+0.25387755102 0.264761904762 err_sum 0.257142857143(n_estimators=300, random_state=264,min_samples_leaf = 5)
+start to nite
+,criterion = 'mae'
 '''
 X_train, X_test, Y_train, Y_test = train_test_split(
     X, Y, test_size=0.3, random_state=11)
-gbt = ensemble.GradientBoostingClassifier(n_estimators=300, random_state=264,criterion = 'mae')
+gbt = ensemble.GradientBoostingClassifier(n_estimators=300, random_state=264,min_samples_leaf = 5, min_samples_split = 20)
 clf4 = gbt.fit(X_train, Y_train)
 
 err_train = np.mean(Y_train != gbt.predict(X_train))
