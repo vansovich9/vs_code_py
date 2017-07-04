@@ -166,11 +166,11 @@ def LoadFile(file_name ):
     idx_ad = (data['ap_hi']>180) & (data['ap_lo']>100)
     data.loc[idx_ad,'gyperton']=3 #
 
-    '''data_n = pd.DataFrame(StandardScaler().fit_transform(data[['age', 'ap_lo', 'ap_hi','height', 'weight', 'cholesterol', 'gluc', 'bmi', 'ap_hi_n', 'ap_lo_n','weight_o','weight_nfg_o','weight_nfg_o_с','weight_o_c']]))
+    data_n = pd.DataFrame(StandardScaler().fit_transform(data[['age', 'ap_lo', 'ap_hi','height', 'weight', 'cholesterol', 'gluc', 'bmi', 'ap_hi_n', 'ap_lo_n','weight_o','weight_nfg_o','weight_nfg_o_с','weight_o_c']]))
     data[['age', 'ap_lo', 'ap_hi', 'height', 'weight', 'cholesterol', 'gluc', 'bmi', 'ap_hi_n', 'ap_lo_n', 'weight_o', 'weight_nfg_o', 'weight_nfg_o_с', 'weight_o_c']] = data_n
-    '''
-    data_n = data[['age', 'ap_lo', 'ap_hi','height', 'weight', 'cholesterol', 'gluc', 'bmi', 'ap_hi_n', 'ap_lo_n','weight_o','weight_nfg_o','weight_nfg_o_с','weight_o_c']]
+    
+    ''' data_n = data[['age', 'ap_lo', 'ap_hi','height', 'weight', 'cholesterol', 'gluc', 'bmi', 'ap_hi_n', 'ap_lo_n','weight_o','weight_nfg_o','weight_nfg_o_с','weight_o_c']]
     data_n = (data_n - data_n.mean()) / data_n.std()
     data[['age', 'ap_lo', 'ap_hi', 'height', 'weight', 'cholesterol', 'gluc', 'bmi', 'ap_hi_n', 'ap_lo_n', 'weight_o', 'weight_nfg_o', 'weight_nfg_o_с', 'weight_o_c']] = data_n
-
+    '''
     return data

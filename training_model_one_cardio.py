@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from sklearn.externals import joblib
-from sklearn.ensemble import GradientBoostingClassifier
+from sklearn.ensemble import GradientBoostingClassifier, AdaBoostClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 
@@ -66,24 +66,71 @@ start to nite
 X = data.drop(['cardio','smoke', 'alco','id','weight_o','weight_nfg_o','weight_nfg_o_с','weight_o_c','alco','bmi_r_4','bmi_n_7','bmi_r_1','bmi_n_2','bmi_n_1'], axis=1)  # Выбрасываем столбец 'class'.
 Y = data['cardio']
 
-X_train, X_test, Y_train, Y_test = train_test_split(
-    X, Y, test_size=0.3, random_state=11)
+
 '''    
 #gbt = ensemble.GradientBoostingClassifier(n_estimators=55, random_state=264,min_samples_leaf = 5, subsample = 0.5, verbose=0)
 gender 0 0.257255812494 0.263050003661 err_sum 0.258994069844 gbt = MLPClassifier(alpha=0.0, random_state = 0)
 gender 0 0.261052367356 0.262025038436 err_sum 0.26134416868 gbt = MLPClassifier(alpha=0.0, random_state = 0, hidden_layer_sizes = 50, verbose = 1)
 '''
-gbt = MLPClassifier(alpha=0.0, random_state = 11, activation = 'relu', hidden_layer_sizes=(40,), verbose = 0)
+best_err = 10
+best_rnd = 0
+runs = 20
+data_predict = pd.DataFrame(Y)
+for i in range(runs):
+    X_train, X_test, Y_train, Y_test = train_test_split(
+    X, Y, test_size=0.3, random_state=i)
+    gbt = MLPClassifier(alpha=0.0, random_state = 5, activation = 'relu', hidden_layer_sizes=(50,), verbose = 0)
+    clf4 = gbt.fit(X_train, Y_train)
+    err_train = np.mean(Y_train != gbt.predict(X_train))
+    err_test = np.mean(Y_test != gbt.predict(X_test))
+    err_sum = np.mean(Y != gbt.predict(X))
+    data_predict["MLP_"+str(i)] = pd.DataFrame(gbt.predict_proba(X)).drop(0,axis=1)
+    #joblib.dump(gbt, "training_models/cardio.pkl", compress=1)
+    '''    if(err_test<best_err):
+        best_err=err_test
+        best_rnd = i'''
+    print("random_state = ", i, err_train, err_test, 'err_sum', err_sum)
+    #print("gbt score %s" % clf4.score(X_train, Y_train))
+#print("Best rnd", best_rnd, "err", best_err)
+
+for i in range(runs):
+    X_train, X_test, Y_train, Y_test = train_test_split(
+    X, Y, test_size=0.3, random_state=i)
+    gbt = GradientBoostingClassifier(n_estimators=55, random_state=264,min_samples_leaf = 5, subsample = 0.5, verbose=0)
+    clf4 = gbt.fit(X_train, Y_train)
+    err_train = np.mean(Y_train != gbt.predict(X_train))
+    err_test = np.mean(Y_test != gbt.predict(X_test))
+    err_sum = np.mean(Y != gbt.predict(X))
+    data_predict["GBT_"+str(i)] = pd.DataFrame(gbt.predict_proba(X)).drop(0,axis=1)
+    #joblib.dump(gbt, "training_models/cardio.pkl", compress=1)
+    print("random_state = ", i, err_train, err_test, 'err_sum', err_sum)
+
+for i in range(runs):
+    X_train, X_test, Y_train, Y_test = train_test_split(
+    X, Y, test_size=0.3, random_state=i)
+    gbt = AdaBoostClassifier(n_estimators=300, random_state=264)
+    clf4 = gbt.fit(X_train, Y_train)
+    err_train = np.mean(Y_train != gbt.predict(X_train))
+    err_test = np.mean(Y_test != gbt.predict(X_test))
+    err_sum = np.mean(Y != gbt.predict(X))
+    data_predict["ABT_"+str(i)] = pd.DataFrame(gbt.predict_proba(X)).drop(0,axis=1)
+    #joblib.dump(gbt, "training_models/cardio.pkl", compress=1)
+    print("random_state = ", i, err_train, err_test, 'err_sum', err_sum)
+
+data_predict = data_predict.drop(['cardio'],axis=1)
+
+X_train, X_test, Y_train, Y_test = train_test_split(
+    data_predict, Y, test_size=0.3, random_state=6)
+gbt = MLPClassifier(alpha=0.0, random_state=5,
+    activation='relu', hidden_layer_sizes=(50,), verbose=0)
 clf4 = gbt.fit(X_train, Y_train)
 
 err_train = np.mean(Y_train != gbt.predict(X_train))
 err_test = np.mean(Y_test != gbt.predict(X_test))
-err_sum = np.mean(Y != gbt.predict(X))
-joblib.dump(gbt, "training_models/cardio.pkl", compress=1)
+err_sum = np.mean(Y != gbt.predict(data_predict))
 
-print("All",err_train, err_test, 'err_sum', err_sum)
-print("gbt score %s" % clf4.score(X_train, Y_train))
-
+print(err_train, err_test, 'err_sum', err_sum)
+#0.262653061224 0.258523809524 err_sum 0.261414285714
 
 '''print()
 feature_names = X.columns

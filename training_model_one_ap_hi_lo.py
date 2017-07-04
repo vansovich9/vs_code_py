@@ -42,20 +42,20 @@ print("start ap_lo")
 X = data.drop(['cardio','ap_lo','id','weight_o','weight_nfg_o','weight_nfg_o_с','weight_o_c','alco','bmi_r_4','bmi_n_7','bmi_r_1','bmi_n_2','bmi_n_1'], axis=1)  # Выбрасываем столбец 'class'.
 Y = data['ap_lo']
 
-
-
 X_train, X_test, Y_train, Y_test = train_test_split(
     X, Y, test_size=0.3, random_state=11)
-gbt = MLPClassifier(alpha=0.0, random_state = 0, activation = 'relu', hidden_layer_sizes=(120,), verbose = 0)
-clf4 = gbt.fit(X_train, Y_train)
+runs=100
+for i in range(runs):
+    gbt = MLPClassifier(alpha=0.0, random_state = i, activation = 'relu', hidden_layer_sizes=(120,), verbose = 0)
+    clf4 = gbt.fit(X_train, Y_train)
 
-err_train = np.mean(Y_train != gbt.predict(X_train))
-err_test = np.mean(Y_test != gbt.predict(X_test))
-err_sum = np.mean(Y != gbt.predict(X))
-joblib.dump(gbt, "training_models/cardio_lo.pkl", compress=1)
+    err_train = np.mean(Y_train != gbt.predict(X_train))
+    err_test = np.mean(Y_test != gbt.predict(X_test))
+    err_sum = np.mean(Y != gbt.predict(X))
+    #joblib.dump(gbt, "training_models/cardio_lo.pkl", compress=1)
 
-print("gender 1",err_train, err_test, 'err_sum', err_sum)
-print("gbt score %s" % clf4.score(X_train, Y_train))
+    print("random_state =", i,err_train, err_test, 'err_sum', err_sum)
+    #print("gbt score %s" % clf4.score(X_train, Y_train))
 
 
 '''print()
