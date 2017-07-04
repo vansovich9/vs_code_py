@@ -116,9 +116,61 @@ def LoadFile(file_name ):
     data['gluc_2'] = data['gluc_2'].fillna(0)
     data['gluc_3'] = data['gluc_3'].fillna(0)
 
-    data_n = pd.DataFrame(StandardScaler().fit_transform(data[['age', 'height', 'weight', 'ap_hi', 'ap_lo',
-                'cholesterol', 'gluc', 'bmi', 'ap_hi_n', 'ap_lo_n','weight_o','weight_nfg_o','weight_nfg_o_с','weight_o_c']]))
-    data[['age', 'height', 'weight', 'ap_hi', 'ap_lo', 'cholesterol', 'gluc', 'bmi', 'ap_hi_n', 'ap_lo_n', 'weight_o', 'weight_nfg_o', 'weight_nfg_o_с', 'weight_o_c']
-        ] = data_n
+    data['risk']=0.0
+
+    data.loc[(data['smoke']==1),'risk'] = data[(data.smoke==1)]['risk'].astype(float)+0.2
+    idx_smoke = (data['smoke']==1) & ((data['age']//365-25)>0)
+    data.loc[idx_smoke,'risk'] = data[idx_smoke]['risk'].astype(float)+((data[idx_smoke]['age']//365-25)//5).astype(float)*0.06
+
+    data.loc[(data['alco']==1),'risk']=data[(data.alco==1)]['risk'].astype(float)+0.1
+    idx_alko = (data['alco']==1) & ((data['age']//365-20)>0)
+    data.loc[idx_alko,'risk'] = data[idx_alko]['risk'].astype(float)+((data[idx_alko]['age']//365-20)//5).astype(float)*0.03
+
+    data.loc[(data['bmi_r_1']==1),'risk']=data[(data.bmi_r_1==1)]['risk'].astype(float)+0.2
+    data.loc[(data['bmi_r_3']==1),'risk']=data[(data.bmi_r_3==1)]['risk'].astype(float)+0.4
+    data.loc[(data['bmi_r_4']==1),'risk']=data[(data.bmi_r_4==1)]['risk'].astype(float)+0.7
+
+        
+    idx_ad = (data['cholesterol']==1)
+    data.loc[idx_ad,'risk'] = data.loc[idx_ad,'risk'].astype(float)+0.1
+    idx_ad = (data['cholesterol']==2)
+    data.loc[idx_ad,'risk'] = data.loc[idx_ad,'risk'].astype(float)+0.15
+    idx_ad = (data['cholesterol']==3)
+    data.loc[idx_ad,'risk'] = data.loc[idx_ad,'risk'].astype(float)+0.2
+    idx_ad = (data['gluc']==1)
+    data.loc[idx_ad,'risk'] = data.loc[idx_ad,'risk'].astype(float)+0.1
+    idx_ad = (data['gluc']==2)
+    data.loc[idx_ad,'risk'] = data.loc[idx_ad,'risk'].astype(float)+0.15
+    idx_ad = (data['gluc']==3)
+    data.loc[idx_ad,'risk'] = data.loc[idx_ad,'risk'].astype(float)+0.2
+
+    #Начиная с АД 115/75 мм рт. ст. с возрастанием АД на каждые 20/10 мм рт. ст. риск сердечно-сосудистых заболеваний увеличивается.
+    data['ad_risk']=0.0
+    idx_ad = (data['ap_hi']>140) & ((data['age']//365)>50)
+    data.loc[idx_ad,'ad_risk']=data[idx_ad]['ad_risk'].astype(float)+0.5
+    idx_ad = (data['ap_hi']>115)
+    data.loc[idx_ad,'ad_risk']=((data[idx_ad]['ap_hi']-115)//20).astype(float)*0.1
+    idx_ad = (data['ap_lo']>75)
+    data.loc[idx_ad,'ad_risk']=((data[idx_ad]['ap_lo']-75)//10).astype(float)*0.1
+
+    '''
+    1 степень – давления свыше 140–159/90–99 мм рт. ст.;
+    2 степень – 160-179/100–109 мм рт. ст.;
+    3 степень – 180/100 мм рт. ст.
+    '''
+    data['gyperton']=0
+    idx_ad = (data['ap_hi']>140) & (data['ap_lo']>90)
+    data.loc[idx_ad,'gyperton']=1 #
+    idx_ad = (data['ap_hi']>160) & (data['ap_lo']>100)
+    data.loc[idx_ad,'gyperton']=2 #
+    idx_ad = (data['ap_hi']>180) & (data['ap_lo']>100)
+    data.loc[idx_ad,'gyperton']=3 #
+
+    '''data_n = pd.DataFrame(StandardScaler().fit_transform(data[['age', 'ap_lo', 'ap_hi','height', 'weight', 'cholesterol', 'gluc', 'bmi', 'ap_hi_n', 'ap_lo_n','weight_o','weight_nfg_o','weight_nfg_o_с','weight_o_c']]))
+    data[['age', 'ap_lo', 'ap_hi', 'height', 'weight', 'cholesterol', 'gluc', 'bmi', 'ap_hi_n', 'ap_lo_n', 'weight_o', 'weight_nfg_o', 'weight_nfg_o_с', 'weight_o_c']] = data_n
+    '''
+    data_n = data[['age', 'ap_lo', 'ap_hi','height', 'weight', 'cholesterol', 'gluc', 'bmi', 'ap_hi_n', 'ap_lo_n','weight_o','weight_nfg_o','weight_nfg_o_с','weight_o_c']]
+    data_n = (data_n - data_n.mean()) / data_n.std()
+    data[['age', 'ap_lo', 'ap_hi', 'height', 'weight', 'cholesterol', 'gluc', 'bmi', 'ap_hi_n', 'ap_lo_n', 'weight_o', 'weight_nfg_o', 'weight_nfg_o_с', 'weight_o_c']] = data_n
 
     return data

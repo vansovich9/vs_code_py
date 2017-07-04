@@ -1,12 +1,10 @@
 import numpy as np
 import pandas as pd
-from sklearn import ensemble
 from sklearn.externals import joblib
+from sklearn.ensemble import GradientBoostingClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.svm import SVC
 from sklearn.neural_network import MLPClassifier
-from sklearn.ensemble import AdaBoostClassifier
-from sklearn.preprocessing import StandardScaler
+
 from processing_data import LoadFile
 
 data = pd.DataFrame(LoadFile("ml5/train.csv"))
@@ -47,17 +45,7 @@ X_test.loc[(X_test['predict']>0.1) & (X_test['bmi_r_4']==1),'predict']=X_test[(X
 
 0.253346938776 0.265761904762  X = data.drop(['cardio','id','weight_o','weight_nfg_o','weight_nfg_o_с','weight_o_c','alco'], axis=1)  # Выбрасываем столбец 'class'.
 '''
-data['risk']=0
 
-data.loc[(data['smoke']==1),'risk']=data[(data.smoke==1)]['risk']+0.2
-
-data.loc[(data['alco']==1),'risk']=data[(data.alco==1)]['risk']+0.1
-
-data.loc[(data['bmi_r_1']==1),'risk']=data[(data.bmi_r_1==1)]['risk']+0.2
-
-data.loc[(data['bmi_r_3']==1),'risk']=data[(data.bmi_r_3==1)]['risk']+0.4
-
-data.loc[(data['bmi_r_4']==1),'risk']=data[(data.bmi_r_4==1)]['risk']+0.7
 
 #print(X.columns)
 
@@ -75,39 +63,28 @@ print("start gbt")
 start to nite
 ,criterion = 'mae'
 '''
-X = data[(data.gender==0)].drop(['cardio','id','gender','weight_o','weight_nfg_o','weight_nfg_o_с','weight_o_c','alco','bmi_r_4','bmi_n_7','bmi_r_1','bmi_n_2','bmi_n_1'], axis=1)  # Выбрасываем столбец 'class'.
-Y = data[(data.gender==0)]['cardio']
+X = data.drop(['cardio','smoke', 'alco','id','weight_o','weight_nfg_o','weight_nfg_o_с','weight_o_c','alco','bmi_r_4','bmi_n_7','bmi_r_1','bmi_n_2','bmi_n_1'], axis=1)  # Выбрасываем столбец 'class'.
+Y = data['cardio']
 
 X_train, X_test, Y_train, Y_test = train_test_split(
     X, Y, test_size=0.3, random_state=11)
+'''    
 #gbt = ensemble.GradientBoostingClassifier(n_estimators=55, random_state=264,min_samples_leaf = 5, subsample = 0.5, verbose=0)
-gbt = MLPClassifier(alpha=0.0)
+gender 0 0.257255812494 0.263050003661 err_sum 0.258994069844 gbt = MLPClassifier(alpha=0.0, random_state = 0)
+gender 0 0.261052367356 0.262025038436 err_sum 0.26134416868 gbt = MLPClassifier(alpha=0.0, random_state = 0, hidden_layer_sizes = 50, verbose = 1)
+'''
+gbt = MLPClassifier(alpha=0.0, random_state = 11, activation = 'relu', hidden_layer_sizes=(40,), verbose = 0)
 clf4 = gbt.fit(X_train, Y_train)
 
 err_train = np.mean(Y_train != gbt.predict(X_train))
 err_test = np.mean(Y_test != gbt.predict(X_test))
 err_sum = np.mean(Y != gbt.predict(X))
-joblib.dump(gbt, "training_models/cardio_0.pkl", compress=1)
+joblib.dump(gbt, "training_models/cardio.pkl", compress=1)
 
-print("gender 0",err_train, err_test, 'err_sum', err_sum)
+print("All",err_train, err_test, 'err_sum', err_sum)
 print("gbt score %s" % clf4.score(X_train, Y_train))
 
-X = data[(data.gender==1)].drop(['cardio','id','gender','weight_o','weight_nfg_o','weight_nfg_o_с','weight_o_c','alco','bmi_r_4','bmi_n_7','bmi_r_1','bmi_n_2','bmi_n_1'], axis=1)  # Выбрасываем столбец 'class'.
-Y = data[(data.gender==1)]['cardio']
 
-X_train, X_test, Y_train, Y_test = train_test_split(
-    X, Y, test_size=0.3, random_state=11)
-#gbt = ensemble.GradientBoostingClassifier(n_estimators=40, random_state=264,min_samples_leaf = 6, subsample = 0.1, verbose=0)
-gbt = MLPClassifier(alpha=0.0)
-clf4 = gbt.fit(X_train, Y_train)
-
-err_train = np.mean(Y_train != gbt.predict(X_train))
-err_test = np.mean(Y_test != gbt.predict(X_test))
-err_sum = np.mean(Y != gbt.predict(X))
-joblib.dump(gbt, "training_models/cardio_1.pkl", compress=1)
-
-print("gender 1",err_train, err_test, 'err_sum', err_sum)
-print("gbt score %s" % clf4.score(X_train, Y_train))
 '''print()
 feature_names = X.columns
 importances = gbt.feature_importances_
