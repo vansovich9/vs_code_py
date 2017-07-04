@@ -130,7 +130,9 @@ err_test = np.mean(Y_test != gbt.predict(X_test))
 err_sum = np.mean(Y != gbt.predict(data_predict))
 
 print(err_train, err_test, 'err_sum', err_sum)
+#0.262326530612 0.257142857143 err_sum 0.260771428571
 #0.262653061224 0.258523809524 err_sum 0.261414285714
+
 
 '''print()
 feature_names = X.columns
