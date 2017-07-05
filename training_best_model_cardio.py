@@ -24,7 +24,7 @@ names = ["Nearest Neighbors", "Decision Tree", "Random Forest", "Neural Net", "A
 classifiers = [
     KNeighborsClassifier(3),
     DecisionTreeClassifier(max_depth=10),
-    RandomForestClassifier(max_depth=10, n_estimators=700, max_features=1),
+    RandomForestClassifier(max_depth=10, n_estimators=700, max_features=1, random_state=None),
     MLPClassifier(alpha=1),
     AdaBoostClassifier(),
     GaussianNB(),

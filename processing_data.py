@@ -6,21 +6,21 @@ from sklearn.preprocessing import StandardScaler, Normalizer
 def LoadFile(file_name ):
     data = pd.read_csv(file_name, header=0,
                     sep=';', na_values=['None'])
-    
-
-    data['ap_lo'] = data['ap_lo'].fillna(data['ap_lo'].mean())
-    data['ap_hi'] = data['ap_hi'].fillna(data['ap_hi'].mean())
-    
-    data['ap_hi'] = abs(data['ap_hi'])
-    data['ap_lo'] = abs(data['ap_lo'])
 
     #data['age'] = round(data['age']/365, 2)
 
+    data['ap_hi'] = abs(data['ap_hi'])
+    data['ap_lo'] = abs(data['ap_lo'])
+
+    data.loc[(data['ap_lo'] == 0),'ap_lo'] = np.NaN
+    data.loc[(data['ap_hi'] == 0),'ap_hi'] = np.NaN
+
     data['gender'] = data['gender'] - 1
     
-    data.loc[(data['ap_lo'] == 0),'ap_lo'] = data['ap_lo'].mean()
-    data.loc[(data['ap_hi'] == 0),'ap_hi'] = data['ap_hi'].mean()
-
+    if(data[(data['ap_lo'] == 0)]['ap_lo'].count()>0):
+        print("ap_lo execute 0")
+    if(data[(data['ap_hi'] == 0)]['ap_hi'].count()>0):
+        print("ap_hi execute 0")
     while (data[data.ap_lo > 200]['id'].count()>0):
         data.loc[(data['ap_lo'] > 200),'ap_lo'] = data[data.ap_lo > 200]['ap_lo'] // 10
 
@@ -33,6 +33,15 @@ def LoadFile(file_name ):
     while (data[data.ap_hi > 250]['id'].count()>0):
         data.loc[(data['ap_hi'] > 250),'ap_hi'] = data[data.ap_hi > 250]['ap_hi'] // 10
     
+    data['ap_lo'] = data['ap_lo'].fillna(round(data[(data['age'] >= data.age)]['ap_lo'].mean()))
+    data['ap_hi'] = data['ap_hi'].fillna(round(data[(data['age'] >= data.age)]['ap_hi'].mean()))
+    
+    if(data[(data['ap_lo'] == 0)]['ap_lo'].count()>0):
+        print("ap_lo execute 0 s2")
+    if(data[(data['ap_hi'] == 0)]['ap_hi'].count()>0):
+        print("ap_hi execute 0 s2")
+
+
     null_idx = data['ap_hi'] <= data['ap_lo']
     
     data.loc[null_idx,['ap_hi','ap_lo']] = data.loc[null_idx,['ap_lo','ap_hi']].values
