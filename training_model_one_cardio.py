@@ -148,22 +148,25 @@ print("Best RFC rnd", best_rnd, "err", best_err)
 data_predict = data_predict.drop(['cardio'],axis=1)
 best_err = 10
 best_rnd = 0
+best_rnd_model = 0
 best_layer = 0
 for i in range(runs):
-    for j in range(10, 200, 10):
-        X_train, X_test, Y_train, Y_test = train_test_split(
-            data_predict, Y, test_size=0.3, random_state=14)
-        gbt = MLPClassifier(alpha=0.0, random_state=i,
-            activation='relu', hidden_layer_sizes=(j,), verbose=0)
-        clf4 = gbt.fit(X_train, Y_train)
-        err_train = np.mean(Y_train != gbt.predict(X_train))
-        err_test = np.mean(Y_test != gbt.predict(X_test))
-        err_sum = np.mean(Y != gbt.predict(data_predict))
-        if(err_test<best_err):
-            best_err=err_test
-            best_rnd = i
-            best_layer = j
-        print("random_state = ", i, err_train, err_test, 'err_sum', err_sum, "layer", j)
+    X_train, X_test, Y_train, Y_test = train_test_split(
+        data_predict, Y, test_size=0.3, random_state=i)
+    for j_m in range(runs):    
+        for j in range(10, 200, 10):
+            gbt = MLPClassifier(alpha=0.0, random_state=j_m,
+                activation='relu', hidden_layer_sizes=(j,), verbose=0)
+            clf4 = gbt.fit(X_train, Y_train)
+            err_train = np.mean(Y_train != gbt.predict(X_train))
+            err_test = np.mean(Y_test != gbt.predict(X_test))
+            err_sum = np.mean(Y != gbt.predict(data_predict))
+            if(err_test<best_err):
+                best_err=err_test
+                best_rnd = i
+                best_layer = j
+                best_rnd_model = j_m
+            print("random_state = ", i, err_train, err_test, 'err_sum', err_sum, "layer", j)
 print("Best final rnd", best_rnd, "err", best_err, "best layer", best_layer)
 
 '''
@@ -190,3 +193,5 @@ for f, idx in enumerate(indices):
     print("{:2d}. feature '{:5s}' ({:.4f})".format(f + 1, feature_names[idx], importances[idx]))'''
 #0.265285714286 0.265238095238 0.265238095238 
 #0.254959183673 0.265714285714 0.254408163265 0.265238095238
+#0.260326530612 0.255714285714 e
+
