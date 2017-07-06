@@ -75,7 +75,7 @@ gender 0 0.261052367356 0.262025038436 err_sum 0.26134416868 gbt = MLPClassifier
 best_err = 10
 best_rnd = 0
 runs = 40
-data_predict = pd.DataFrame(Y)
+data_predict = pd.DataFrame(data[['cardio', 'smoke', 'alco', 'active']])
 for i in range(runs):
     X_train, X_test, Y_train, Y_test = train_test_split(
     X, Y, test_size=0.3, random_state=i)
@@ -150,23 +150,22 @@ best_err = 10
 best_rnd = 0
 best_rnd_model = 0
 best_layer = 0
-for i in range(runs):
+for j_m in range(runs):    
     X_train, X_test, Y_train, Y_test = train_test_split(
-        data_predict, Y, test_size=0.3, random_state=i)
-    for j_m in range(runs):    
-        for j in range(10, 200, 10):
-            gbt = MLPClassifier(alpha=0.0, random_state=j_m,
-                activation='relu', hidden_layer_sizes=(j,), verbose=0)
-            clf4 = gbt.fit(X_train, Y_train)
-            err_train = np.mean(Y_train != gbt.predict(X_train))
-            err_test = np.mean(Y_test != gbt.predict(X_test))
-            err_sum = np.mean(Y != gbt.predict(data_predict))
-            if(err_test<best_err):
-                best_err=err_test
-                best_rnd = i
-                best_layer = j
-                best_rnd_model = j_m
-            print("random_state = ", i, err_train, err_test, 'err_sum', err_sum, "layer", j)
+        data_predict, Y, test_size=0.3, random_state=j_m)
+    for j in range(10, 200, 10):
+        gbt = MLPClassifier(alpha=0.0, random_state=j_m,
+            activation='relu', hidden_layer_sizes=(j,), verbose=0)
+        clf4 = gbt.fit(X_train, Y_train)
+        err_train = np.mean(Y_train != gbt.predict(X_train))
+        err_test = np.mean(Y_test != gbt.predict(X_test))
+        err_sum = np.mean(Y != gbt.predict(data_predict))
+        if(err_test<best_err):
+            best_err=err_test
+            best_rnd = j_m
+            best_layer = j
+            joblib.dump(gbt, "training_models/cardio_"+str(best_rnd)+"_"+str(best_layer)+".pkl", compress=1)
+        print("random_state =", j_m, err_train, err_test, 'err_sum', err_sum, "layer", j)
 print("Best final rnd", best_rnd, "err", best_err, "best layer", best_layer)
 
 '''
@@ -180,6 +179,7 @@ Best MLP rnd 14 err 0.25819047619
 Best GBT rnd 20 err 0.258476190476
 Best ABC rnd 20 err 0.26219047619
 Best RFC rnd 20 err 0.263619047619
+Best final rnd 20 err 0.253761904762 best layer 70
 '''
 
 
