@@ -63,11 +63,11 @@ print("start gbt")
 start to nite
 ,criterion = 'mae'
 '''
-X = data.drop(['cardio', 'smoke', 'alco', 'active','id','weight_o','weight_nfg_o','weight_nfg_o_с','weight_o_c','alco','bmi_r_4','bmi_n_7','bmi_r_1','bmi_n_2','bmi_n_1'], axis=1)  # Выбрасываем столбец 'class'.
+X = data.drop(['cardio','alco','active','id','weight_o','weight_nfg_o','weight_nfg_o_с','weight_o_c','alco','bmi_r_4','bmi_n_7','bmi_r_1','bmi_n_2','bmi_n_1'], axis=1)  # Выбрасываем столбец 'class'.
 Y = data['cardio']
 #print(X.describe())
 
-'''    
+'''
 #gbt = ensemble.GradientBoostingClassifier(n_estimators=55, random_state=264,min_samples_leaf = 5, subsample = 0.5, verbose=0)
 gender 0 0.257255812494 0.263050003661 err_sum 0.258994069844 gbt = MLPClassifier(alpha=0.0, random_state = 0)
 gender 0 0.261052367356 0.262025038436 err_sum 0.26134416868 gbt = MLPClassifier(alpha=0.0, random_state = 0, hidden_layer_sizes = 50, verbose = 1)
@@ -75,7 +75,7 @@ gender 0 0.261052367356 0.262025038436 err_sum 0.26134416868 gbt = MLPClassifier
 best_err = 10
 best_rnd = 0
 runs = 40
-data_predict = pd.DataFrame(data[['cardio', 'smoke', 'alco', 'active']])
+data_predict = pd.DataFrame(data[['cardio']])
 for i in range(runs):
     X_train, X_test, Y_train, Y_test = train_test_split(
     X, Y, test_size=0.3, random_state=i)
@@ -169,12 +169,24 @@ for j_m in range(runs):
 print("Best final rnd", best_rnd, "err", best_err, "best layer", best_layer)
 
 '''
-whith smoke and alco
+whith smoke
+Best MLP rnd 20 err 0.25819047619
+Best GBT rnd 20 err 0.258285714286
+Best ABC rnd 14 err 0.26180952381
+Best RFC rnd 20 err 0.264714285714
+Best final rnd 20 err 0.254047619048 best layer 130
+whith smoke  alco
+Best MLP rnd 20 err 0.25819047619
+Best GBT rnd 20 err 0.258285714286
+Best ABC rnd 14 err 0.26180952381
+Best RFC rnd 20 err 0.264714285714
+Best final rnd 20 err 0.2540476 layer 130
+whith smoke active alco
 Best MLP rnd 33 err 0.259238095238
 Best GBT rnd 20 err 0.259619047619
 Best ABC rnd 20 err 0.260714285714
 Best RFC rnd 20 err 0.265142857
-whithout smoke and alco
+whithout smoke, alco, active
 Best MLP rnd 14 err 0.25819047619
 Best GBT rnd 20 err 0.258476190476
 Best ABC rnd 20 err 0.26219047619
