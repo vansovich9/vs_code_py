@@ -63,7 +63,7 @@ print("start gbt")
 start to nite
 ,criterion = 'mae'
 '''
-X = data.drop(['cardio','alco','active','id','weight_o','weight_nfg_o','weight_nfg_o_с','weight_o_c','alco','bmi_r_4','bmi_n_7','bmi_r_1','bmi_n_2','bmi_n_1'], axis=1)  # Выбрасываем столбец 'class'.
+X = data.drop(['cardio','smoke','alco','active','id','weight_o','weight_nfg_o','weight_nfg_o_с','weight_o_c','alco','bmi_r_4','bmi_n_7','bmi_r_1','bmi_n_2','bmi_n_1'], axis=1)  # Выбрасываем столбец 'class'.
 Y = data['cardio']
 #print(X.describe())
 
@@ -75,7 +75,7 @@ gender 0 0.261052367356 0.262025038436 err_sum 0.26134416868 gbt = MLPClassifier
 best_err = 10
 best_rnd = 0
 runs = 40
-data_predict = pd.DataFrame(data[['cardio']])
+data_predict = data.drop(['cardio','smoke','alco','active','id','weight_o','weight_nfg_o','weight_nfg_o_с','weight_o_c','alco','bmi_r_4','bmi_n_7','bmi_r_1','bmi_n_2','bmi_n_1'], axis=1)  # Выбрасываем столбец 'class'.
 for i in range(runs):
     X_train, X_test, Y_train, Y_test = train_test_split(
     X, Y, test_size=0.3, random_state=i)
@@ -145,7 +145,7 @@ for i in range(runs):
     print("random_state = ", i, err_train, err_test, 'err_sum', err_sum)
 print("Best RFC rnd", best_rnd, "err", best_err)
 
-data_predict = data_predict.drop(['cardio'],axis=1)
+#data_predict = data_predict.drop(['cardio'],axis=1)
 best_err = 10
 best_rnd = 0
 best_rnd_model = 0
@@ -192,8 +192,19 @@ Best GBT rnd 20 err 0.258476190476
 Best ABC rnd 20 err 0.26219047619
 Best RFC rnd 20 err 0.263619047619
 Best final rnd 20 err 0.253761904762 best layer 70
+data_predict = pd.DataFrame(data[['cardio', 'smoke', 'alco', 'active']])
+Best MLP rnd 14 err 0.25819047619
+Best GBT rnd 20 err 0.258476190476
+Best ABC rnd 20 err 0.26219047619
+Best RFC rnd 20 err 0.263619047619
+Best final rnd 20 err 0.253952380952 best layer 10
+#data_predict = data.drop(['cardio','smoke','alco','active','id','weight_o','weight_nfg_o','weight_nfg_o_с','weight_o_c','alco','bmi_r_4','bmi_n_7','bmi_r_1','bmi_n_2','bmi_n_1'], axis=1)  # Выбрасываем столбец 'class'.
+Best MLP rnd 14 err 0.25819047619
+Best GBT rnd 20 err 0.258476190476
+Best ABC rnd 20 err 0.26219047619
+Best RFC rnd 20 err 0.263619047619
+Best final rnd 14 err 0.217571428571 best layer 180
 '''
-
 
 '''print()
 feature_names = X.columns
