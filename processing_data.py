@@ -18,9 +18,9 @@ def LoadFile(file_name ):
     data['gender'] = data['gender'] - 1
     
     if(data[(data['ap_lo'] == 0)]['ap_lo'].count()>0):
-        print("ap_lo execute 0")
+        print("ap_lo execute 0 count =",data[(data['ap_lo'] == 0)]['ap_lo'].count())
     if(data[(data['ap_hi'] == 0)]['ap_hi'].count()>0):
-        print("ap_hi execute 0")
+        print("ap_hi execute 0 count =",data[(data['ap_hi'] == 0)]['ap_hi'].count())
     while (data[data.ap_lo > 200]['id'].count()>0):
         data.loc[(data['ap_lo'] > 200),'ap_lo'] = data[data.ap_lo > 200]['ap_lo'] // 10
 
@@ -33,32 +33,30 @@ def LoadFile(file_name ):
     while (data[data.ap_hi > 250]['id'].count()>0):
         data.loc[(data['ap_hi'] > 250),'ap_hi'] = data[data.ap_hi > 250]['ap_hi'] // 10
     
-    data['ap_lo'] = data['ap_lo'].fillna(round(data[(data['age'] >= data.age)]['ap_lo'].mean()))
-    data['ap_hi'] = data['ap_hi'].fillna(round(data[(data['age'] >= data.age)]['ap_hi'].mean()))
-    
+    #data['ap_lo'] = data['ap_lo'].fillna(round(data[(data['age'] >= data.age)]['ap_lo'].mean()))
+    #data['ap_hi'] = data['ap_hi'].fillna(round(data[(data['age'] >= data.age)]['ap_hi'].mean()))
+
+    data['ap_lo'] = data['ap_lo'].fillna(0)
+    data['ap_hi'] = data['ap_hi'].fillna(0)
+        
     if(data[(data['ap_lo'] == 0)]['ap_lo'].count()>0):
-        print("ap_lo execute 0 s2")
+        print("ap_lo execute 0 s2 count =",data[(data['ap_lo'] == 0)]['ap_lo'].count())
     if(data[(data['ap_hi'] == 0)]['ap_hi'].count()>0):
-        print("ap_hi execute 0 s2")
+        print("ap_hi execute 0 s2 count =",data[(data['ap_hi'] == 0)]['ap_hi'].count())
 
 
-    null_idx = data['ap_hi'] <= data['ap_lo']
+    #null_idx = data['ap_hi'] <= data['ap_lo']
     
-    data.loc[null_idx,['ap_hi','ap_lo']] = data.loc[null_idx,['ap_lo','ap_hi']].values
+    #data.loc[null_idx,['ap_hi','ap_lo']] = data.loc[null_idx,['ap_lo','ap_hi']].values
 
     data_bmi = pd.DataFrame(
         {'bmi': round(((data['weight']) / ((data['height'] / 100)**2)), 2),
-        'weight_o': 50 +  round(0.75 *(data['height'] - 150), 2) + round((round(data['age']/365, 2) - 20) / 4, 2),#отимальный вес
-        'weight_nfg_o': 45 +  round((data['height'] - 152.4) / 2.45 * 0.9, 2) + round(((round(data['age']/365, 2) - 20) / 4), 2)#отимальный вес формула Наглера начало расчета
+        'weight_o': 50 +  round(0.75 *(data['height'] - 150), 2) + round((round(data['age']/365, 2) - 20) / 4, 2)#отимальный вес
         }
         )
-    data_bmi['weight_nfg_o'] = data_bmi['weight_nfg_o'] * 1.1#отимальный вес формула Наглера завершение расчета
-    data_bmi['weight_nfg_o_с'] = data['weight'] - data_bmi['weight_nfg_o']#отимальный вес формула Наглера отклонение
     data_bmi['weight_o_c'] = data['weight'] - data_bmi['weight_o']#отимальный вес отклонение
 
     data_bmi['weight_o'] = data_bmi['weight_o'].fillna(0)
-    data_bmi['weight_nfg_o'] = data_bmi['weight_nfg_o'].fillna(0)
-    data_bmi['weight_nfg_o_с'] = data_bmi['weight_nfg_o_с'].fillna(0)
     data_bmi['weight_o_c'] = data_bmi['weight_o_c'].fillna(0)
 
     #weight_o,weight_nfg_o,weight_nfg_o_с,weight_o_c
@@ -78,11 +76,11 @@ def LoadFile(file_name ):
 
     #data['ap_hi_n'] = np.sqrt((data['ap_hi'] - data['ap_hi_n'])**2)
     #data['ap_lo_n'] = np.sqrt((data['ap_lo'] - data['ap_lo_n'])**2)
-    data['ap_hi_n'] = data['ap_hi'] - data['ap_hi_n']
-    data['ap_lo_n'] = data['ap_lo'] - data['ap_lo_n']
+    data['ap_hi_n'] = np.abs(data['ap_hi'] - data['ap_hi_n'])
+    data['ap_lo_n'] = np.abs(data['ap_lo'] - data['ap_lo_n'])
 
-    data.at[(abs(data['ap_hi_n']) >= 20 ), 'ap_hi_c'] = 1.0
-    data.at[(abs(data['ap_lo_n']) >= 10 ), 'ap_lo_c'] = 1.0
+    data.at[(data['ap_hi_n'] >= 20 ), 'ap_hi_c'] = 1.0
+    data.at[(data['ap_lo_n'] >= 10 ), 'ap_lo_c'] = 1.0
 
     data['ap_hi_c'] = data['ap_hi_c'].fillna(0)
     data['ap_lo_c'] = data['ap_lo_c'].fillna(0)
@@ -125,7 +123,7 @@ def LoadFile(file_name ):
     data['gluc_2'] = data['gluc_2'].fillna(0)
     data['gluc_3'] = data['gluc_3'].fillna(0)
 
-    data['risk']=0.0
+    '''data['risk']=0.0
 
     data.loc[(data['smoke']==1),'risk'] = data[(data.smoke==1)]['risk'].astype(float)+0.2
     idx_smoke = (data['smoke']==1) & ((data['age']//365-25)>0)
@@ -160,7 +158,7 @@ def LoadFile(file_name ):
     idx_ad = (data['ap_hi']>115)
     data.loc[idx_ad,'ad_risk']=((data[idx_ad]['ap_hi']-115)//20).astype(float)*0.1
     idx_ad = (data['ap_lo']>75)
-    data.loc[idx_ad,'ad_risk']=((data[idx_ad]['ap_lo']-75)//10).astype(float)*0.1
+    data.loc[idx_ad,'ad_risk']=((data[idx_ad]['ap_lo']-75)//10).astype(float)*0.1'''
 
     '''
     1 степень – давления свыше 140–159/90–99 мм рт. ст.;
@@ -175,11 +173,11 @@ def LoadFile(file_name ):
     idx_ad = (data['ap_hi']>180) & (data['ap_lo']>100)
     data.loc[idx_ad,'gyperton']=3 #
 
-    data_n = pd.DataFrame(StandardScaler().fit_transform(data[['age', 'ap_lo', 'ap_hi','height', 'weight', 'cholesterol', 'gluc', 'bmi', 'ap_hi_n', 'ap_lo_n','weight_o','weight_nfg_o','weight_nfg_o_с','weight_o_c']]))
-    data[['age', 'ap_lo', 'ap_hi', 'height', 'weight', 'cholesterol', 'gluc', 'bmi', 'ap_hi_n', 'ap_lo_n', 'weight_o', 'weight_nfg_o', 'weight_nfg_o_с', 'weight_o_c']] = data_n
+    data_n = pd.DataFrame(StandardScaler().fit_transform(data[['age', 'ap_lo', 'ap_hi','height', 'weight', 'cholesterol', 'gluc', 'bmi', 'ap_hi_n', 'ap_lo_n','weight_o','weight_o_c']]))
+    data[['age', 'ap_lo', 'ap_hi', 'height', 'weight', 'cholesterol', 'gluc', 'bmi', 'ap_hi_n', 'ap_lo_n', 'weight_o', 'weight_o_c']] = data_n
     
-    ''' data_n = data[['age', 'ap_lo', 'ap_hi','height', 'weight', 'cholesterol', 'gluc', 'bmi', 'ap_hi_n', 'ap_lo_n','weight_o','weight_nfg_o','weight_nfg_o_с','weight_o_c']]
+    ''' data_n = data[['age', 'ap_lo', 'ap_hi','height', 'weight', 'cholesterol', 'gluc', 'bmi', 'ap_hi_n', 'ap_lo_n','weight_o','weight_o_c']]
     data_n = (data_n - data_n.mean()) / data_n.std()
-    data[['age', 'ap_lo', 'ap_hi', 'height', 'weight', 'cholesterol', 'gluc', 'bmi', 'ap_hi_n', 'ap_lo_n', 'weight_o', 'weight_nfg_o', 'weight_nfg_o_с', 'weight_o_c']] = data_n
+    data[['age', 'ap_lo', 'ap_hi', 'height', 'weight', 'cholesterol', 'gluc', 'bmi', 'ap_hi_n', 'ap_lo_n', 'weight_o', 'weight_o_c']] = data_n
     '''
     return data

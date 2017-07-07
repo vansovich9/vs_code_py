@@ -5,6 +5,8 @@ from sklearn.ensemble import GradientBoostingClassifier, AdaBoostClassifier, Ran
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 
+from sklearn.metrics import log_loss
+
 from processing_data import LoadFile
 
 data = pd.DataFrame(LoadFile("ml5/train.csv"))
@@ -63,7 +65,7 @@ print("start gbt")
 start to nite
 ,criterion = 'mae'
 '''
-X = data.drop(['cardio','smoke','alco','active','id','weight_o','weight_nfg_o','weight_nfg_o_с','weight_o_c','alco','bmi_r_4','bmi_n_7','bmi_r_1','bmi_n_2','bmi_n_1'], axis=1)  # Выбрасываем столбец 'class'.
+X = data.drop(['cardio','active','id','weight_o','weight_o_c','alco','bmi_r_4','bmi_n_7','bmi_r_1','bmi_n_2','bmi_n_1'], axis=1)  # Выбрасываем столбец 'class'.
 Y = data['cardio']
 #print(X.describe())
 
@@ -75,7 +77,10 @@ gender 0 0.261052367356 0.262025038436 err_sum 0.26134416868 gbt = MLPClassifier
 best_err = 10
 best_rnd = 0
 runs = 40
-data_predict = data.drop(['cardio','smoke','alco','active','id','weight_o','weight_nfg_o','weight_nfg_o_с','weight_o_c','alco','bmi_r_4','bmi_n_7','bmi_r_1','bmi_n_2','bmi_n_1'], axis=1)  # Выбрасываем столбец 'class'.
+data_predict = data.drop(['cardio','active','id','weight_o','weight_o_c','alco','bmi_r_4','bmi_n_7','bmi_r_1','bmi_n_2','bmi_n_1'], axis=1)  # Выбрасываем столбец 'class'.
+data_p_l = LoadFile("ml5/test.csv")
+data_p_x = data_p_l.drop(['active','id','weight_o','weight_o_c','alco','bmi_r_4','bmi_n_7','bmi_r_1','bmi_n_2','bmi_n_1'], axis=1)  # Выбрасываем столбец 'class'.
+data_p = data_p_l.drop(['active','id','weight_o','weight_o_c','alco','bmi_r_4','bmi_n_7','bmi_r_1','bmi_n_2','bmi_n_1'], axis=1)  # Выбрасываем столбец 'class'.
 for i in range(runs):
     X_train, X_test, Y_train, Y_test = train_test_split(
     X, Y, test_size=0.3, random_state=i)
@@ -85,11 +90,13 @@ for i in range(runs):
     err_test = np.mean(Y_test != gbt.predict(X_test))
     err_sum = np.mean(Y != gbt.predict(X))
     data_predict["MLP_"+str(i)] = pd.DataFrame(gbt.predict_proba(X)).drop(0,axis=1)
+    data_p["MLP_"+str(i)] = pd.DataFrame(gbt.predict_proba(data_p_x)).drop(0,axis=1)
     #joblib.dump(gbt, "training_models/cardio.pkl", compress=1)
+    l_los = log_loss(Y,gbt.predict_proba(X)[:, 1])
     if(err_test<best_err):
         best_err=err_test
         best_rnd = i
-    print("random_state = ", i, err_train, err_test, 'err_sum', err_sum)
+    print("random_state = ", i, err_train, err_test, 'err_sum', err_sum, "log_loss =",l_los)
     #print("gbt score %s" % clf4.score(X_train, Y_train))
 print("Best MLP rnd", best_rnd, "err", best_err)
 best_err = 10
@@ -103,11 +110,13 @@ for i in range(runs):
     err_test = np.mean(Y_test != gbt.predict(X_test))
     err_sum = np.mean(Y != gbt.predict(X))
     data_predict["GBT_"+str(i)] = pd.DataFrame(gbt.predict_proba(X)).drop(0,axis=1)
+    data_p["GBT_"+str(i)] = pd.DataFrame(gbt.predict_proba(data_p_x)).drop(0,axis=1)
     #joblib.dump(gbt, "training_models/cardio.pkl", compress=1)
+    l_los = log_loss(Y,gbt.predict_proba(X)[:, 1])
     if(err_test<best_err):
         best_err=err_test
         best_rnd = i
-    print("random_state = ", i, err_train, err_test, 'err_sum', err_sum)
+    print("random_state = ", i, err_train, err_test, 'err_sum', err_sum, "log_loss =",l_los)
 print("Best GBT rnd", best_rnd, "err", best_err)
 best_err = 10
 best_rnd = 0
@@ -120,11 +129,13 @@ for i in range(runs):
     err_test = np.mean(Y_test != gbt.predict(X_test))
     err_sum = np.mean(Y != gbt.predict(X))
     data_predict["ABT_"+str(i)] = pd.DataFrame(gbt.predict_proba(X)).drop(0,axis=1)
+    data_p["ABT_"+str(i)] = pd.DataFrame(gbt.predict_proba(data_p_x)).drop(0,axis=1)
     #joblib.dump(gbt, "training_models/cardio.pkl", compress=1)
+    l_los = log_loss(Y,gbt.predict_proba(X)[:, 1])
     if(err_test<best_err):
         best_err=err_test
         best_rnd = i
-    print("random_state = ", i, err_train, err_test, 'err_sum', err_sum)
+    print("random_state = ", i, err_train, err_test, 'err_sum', err_sum, "log_loss =",l_los)
 print("Best ABC rnd", best_rnd, "err", best_err)
 #
 best_err = 10
@@ -138,15 +149,17 @@ for i in range(runs):
     err_test = np.mean(Y_test != gbt.predict(X_test))
     err_sum = np.mean(Y != gbt.predict(X))
     data_predict["RFC_"+str(i)] = pd.DataFrame(gbt.predict_proba(X)).drop(0,axis=1)
+    data_p["RFC_"+str(i)] = pd.DataFrame(gbt.predict_proba(data_p_x)).drop(0,axis=1)
     #joblib.dump(gbt, "training_models/cardio.pkl", compress=1)
+    l_los = log_loss(Y,gbt.predict_proba(X)[:, 1])
     if(err_test<best_err):
         best_err=err_test
         best_rnd = i
-    print("random_state = ", i, err_train, err_test, 'err_sum', err_sum)
+    print("random_state = ", i, err_train, err_test, 'err_sum', err_sum, "log_loss =",l_los)
 print("Best RFC rnd", best_rnd, "err", best_err)
 
 #data_predict = data_predict.drop(['cardio'],axis=1)
-best_err = 10
+'''best_err = 10
 best_rnd = 0
 best_rnd_model = 0
 best_layer = 0
@@ -166,7 +179,26 @@ for j_m in range(runs):
             best_layer = j
             joblib.dump(gbt, "training_models/cardio_"+str(best_rnd)+"_"+str(best_layer)+".pkl", compress=1)
         print("random_state =", j_m, err_train, err_test, 'err_sum', err_sum, "layer", j)
-print("Best final rnd", best_rnd, "err", best_err, "best layer", best_layer)
+print("Best final rnd", best_rnd, "err", best_err, "best layer", best_layer)'''
+X_train, X_test, Y_train, Y_test = train_test_split(
+    data_predict, Y, test_size=0.3, random_state=14)
+gbt = MLPClassifier(alpha=0.0, random_state=14,
+    activation='relu', hidden_layer_sizes=(180,), verbose=0)
+clf4 = gbt.fit(X_train, Y_train)
+err_train = np.mean(Y_train != gbt.predict(X_train))
+err_test = np.mean(Y_test != gbt.predict(X_test))
+err_sum = np.mean(Y != gbt.predict(data_predict))
+print("random_state = 14", err_train, err_test, 'err_sum', err_sum, "layer = 180")
+data_p["predict"] = pd.DataFrame(gbt.predict_proba(data_p)).drop(0,axis=1)
+
+data_p['predict'].to_csv("result/test_predict1.csv", sep=';', index=False)
+data_p.to_csv("result/test_predict.csv", sep=';', index=False)
+
+l_los = log_loss(Y,gbt.predict_proba(data_predict)[:, 1])
+print("log loss", l_los)
+
+print("File is save")
+
 
 '''
 whith smoke
